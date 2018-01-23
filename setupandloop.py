@@ -9,7 +9,7 @@ import sys
 def serialSetup(port, filePath, transferSpeed):
     ser = serial.Serial()
     ser.port = port
-    ser.timeout = 2
+    ser.timeout = 1
     ser.baudrate = 115200
     ser.open()
 
@@ -17,7 +17,7 @@ def serialSetup(port, filePath, transferSpeed):
     ser.write(b"AOUT" + str(transferSpeed).encode('UTF-8') + b"\r\n")
 
     #Sends the unit of measurement setting
-    ser.write(b"N\r\n")
+    ser.write(b"OZr\n")
     if (ser.read(1) == b""):
         print("Port connection error. Check USB connection and try again.")
         return False
@@ -45,7 +45,7 @@ def serialPass(dataSize, lowerBound, upperBound, outputMaxes, port, filePath):
         localMaxima = []
         print("------------")
         input = ser.read(dataSize)
-        stringList = input.decode().split("N\r\n")
+        stringList = input.decode().split("ozF\r\n")
         for i in range(0, len(stringList)):
             try:
                 dataPoints.append(float(stringList[i]))
@@ -61,10 +61,10 @@ def serialPass(dataSize, lowerBound, upperBound, outputMaxes, port, filePath):
                     and (dataPoints[i] < upperBound):
                     big = True
                     #if greater or equal to any data point in the
-                    #surrounding area
+                    #surrounding area, add it to the list
                     
                     try:
-                        for h in range(0, 25):
+                        for h in range(0, 20):
                             if dataPoints[i] < dataPoints[i-h] and \
                                dataPoints[i-h] > lowerBound and \
                                dataPoints[i-h] < upperBound:
@@ -77,7 +77,7 @@ def serialPass(dataSize, lowerBound, upperBound, outputMaxes, port, filePath):
                             if len(maximaSub) == 0:
                                 maximaSub.append(i)
                             else:
-                                if (i - maximaSub[-1] > 25):
+                                if (i - maximaSub[-1] > 15):
                                     maximaSub.append(i)
                                 else:
                                     if (dataPoints[i] != \
@@ -85,8 +85,10 @@ def serialPass(dataSize, lowerBound, upperBound, outputMaxes, port, filePath):
                                         maximaSub.append(i)
                     except IndexError:
                         pass
-            for sub in maximaSub:   
-                localMaxima.append(dataPoints[sub])
+                    
+            for sub in maximaSub:
+                if sub != 1:
+                    localMaxima.append(dataPoints[sub])
                 
             print("Data: " + str(dataPoints))
             print("Maxima: " + str(localMaxima))

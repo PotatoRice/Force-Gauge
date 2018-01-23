@@ -10,16 +10,16 @@ runLoop = False
 global systemClose
 systemClose = False
 
-global start_time
-start_time = 0
 
 root = tkinter.Tk()
+root.title("FORCE GAUGE READER 3001")
+root.geometry("300x180")
 
 frame = tkinter.Frame(root, borderwidth=2)
 frame.pack(expand = 1)
 t1 = tkinter.Label(frame, text="File Path:")
 t1.pack()
-pathField = tkinter.Entry(frame, width = 60)
+pathField = tkinter.Entry(frame, width = 50)
 pathField.pack()
 dir_path = os.path.dirname(os.path.realpath(__file__))
 pathField.insert(0, dir_path)
@@ -65,7 +65,7 @@ close_button.pack()
 while True:
     root.update()
     if runLoop == True:
-        serialPass(1000, 5, 40, CheckMaxVar.get(), portField.get(), fullPath)
+        serialPass(2000, 25, 70, CheckMaxVar.get(), portField.get(), fullPath)
     if systemClose == True:
         serialEnd(portField.get())
         root.destroy()
